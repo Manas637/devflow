@@ -1,0 +1,334 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | Enums
+ * |--------------------------------------------------------------------------
+ */
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ProjectRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | User
+ * |--------------------------------------------------------------------------
+ */
+
+model User {
+  id String @id @default(cuid())
+
+  name String
+
+  email String @unique
+
+  password String
+
+  role Role @default(USER)
+
+  avatar String?
+
+  isEmailVerified Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  /**
+   * Authentication
+   */
+
+  sessions Session[]
+
+  tokens Token[]
+
+  /**
+   * Organization
+   */
+
+  memberships Membership[]
+
+  sentOrganizationInvitations OrganizationInvitation[] @relation("UserSentInvitations")
+
+  /**
+   * Projects
+   */
+
+  projectMemberships ProjectMembership[]
+
+  @@index([createdAt])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | Session
+ * |--------------------------------------------------------------------------
+ */
+
+model Session {
+  id String @id @default(cuid())
+
+  refreshTokenHash String?
+
+  userAgent String?
+
+  ipAddress String?
+
+  expiresAt DateTime
+
+  lastUsedAt DateTime @default(now())
+
+  createdAt DateTime @default(now())
+
+  userId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | Token
+ * |--------------------------------------------------------------------------
+ */
+
+model Token {
+  id String @id @default(cuid())
+
+  tokenHash String @unique
+
+  type TokenType
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  userId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([userId])
+  @@index([type])
+  @@index([expiresAt])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | Organization
+ * |--------------------------------------------------------------------------
+ */
+
+model Organization {
+  id String @id @default(cuid())
+
+  name String
+
+  slug String @unique
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  /**
+   * Organization members
+   */
+
+  memberships Membership[]
+
+  /**
+   * Projects
+   */
+
+  projects Project[]
+
+  /**
+   * Organization invitations
+   */
+
+  invitations OrganizationInvitation[] @relation("OrganizationInvitations")
+
+  @@index([createdAt])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | Organization Membership
+ * |--------------------------------------------------------------------------
+ */
+
+model Membership {
+  id String @id @default(cuid())
+
+  role OrganizationRole @default(MEMBER)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  userId String
+
+  organizationId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+  @@index([organizationId, role])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | Organization Invitation
+ * |--------------------------------------------------------------------------
+ */
+
+model OrganizationInvitation {
+  id String @id @default(cuid())
+
+  email String
+
+  role OrganizationRole @default(MEMBER)
+
+  status InvitationStatus @default(PENDING)
+
+  tokenHash String @unique
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+
+  invitedById String
+
+  organization Organization @relation(name: "OrganizationInvitations", fields: [organizationId], references: [id], onDelete: Cascade)
+
+  invitedBy User @relation(name: "UserSentInvitations", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([expiresAt])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | Project
+ * |--------------------------------------------------------------------------
+ */
+
+model Project {
+  id String @id @default(cuid())
+
+  name String
+
+  slug String
+
+  description String?
+
+  status ProjectStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  /**
+   * Project members
+   */
+
+  memberships ProjectMembership[]
+
+  /**
+   * A project slug only needs to be unique
+   * inside its organization.
+   */
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([createdAt])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | Project Membership
+ * |--------------------------------------------------------------------------
+ */
+
+model ProjectMembership {
+  id String @id @default(cuid())
+
+  role ProjectRole @default(MEMBER)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  userId String
+
+  projectId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  /**
+   * A user can only have one membership
+   * in a particular project.
+   */
+
+  @@unique([userId, projectId])
+  @@index([userId])
+  @@index([projectId])
+  @@index([projectId, role])
+}

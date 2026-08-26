@@ -1,0 +1,25 @@
+.auth-background {
+
+    background-image:
+
+        radial-gradient(circle at top,
+            rgba(45, 212, 191, .05),
+            transparent 45%),
+
+        linear-gradient(to right,
+            hsl(var(--border)/0.25) 1px,
+            transparent 1px),
+
+        linear-gradient(to bottom,
+            hsl(var(--border)/0.25) 1px,
+            transparent 1px);
+
+    background-size:
+
+        auto,
+
+        48px 48px,
+
+        48px 48px;
+
+}

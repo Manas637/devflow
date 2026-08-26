@@ -1,0 +1,73 @@
+services:
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: devflow-postgres
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - devflow-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:8-alpine
+    container_name: devflow-redis
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    ports:
+      - "${REDIS_PORT}:6379"
+
+    volumes:
+      - redis_data:/data
+
+    networks:
+      - devflow-network
+
+  adminer:
+    image: adminer:5
+    container_name: devflow-adminer
+
+    restart: unless-stopped
+
+    ports:
+      - "${ADMINER_PORT}:8080"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - devflow-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  devflow-network:
+    driver: bridge
