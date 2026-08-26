@@ -1,10 +1,22 @@
 import { Queue } from "bullmq";
-
-import env from "../config/env.js";
 import IORedis from "ioredis";
 
-const connection = new IORedis(env.REDIS_URL, {
+import env from "../config/env.js";
+
+const connection = new IORedis({
+  host: env.REDIS_HOST,
+  port: env.REDIS_PORT,
+
+  username: env.REDIS_USERNAME,
+  password: env.REDIS_PASSWORD,
+
+  // Upstash Redis uses TLS
+  tls: {},
+
+  // Required by BullMQ
   maxRetriesPerRequest: null,
+
+  enableReadyCheck: true,
 });
 
 export const EMAIL_QUEUE_NAME = "email";
