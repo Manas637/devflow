@@ -88,3 +88,71 @@ export const membershipWithUserSelect = {
     },
   },
 };
+
+/*
+|--------------------------------------------------------------------------
+| Project
+|--------------------------------------------------------------------------
+*/
+
+export const projectSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  description: true,
+  status: true,
+  organizationId: true,
+  createdAt: true,
+  updatedAt: true,
+};
+
+export const projectMembershipSelect = {
+  id: true,
+  userId: true,
+  projectId: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true,
+};
+
+export const projectMembershipWithUserSelect = {
+  id: true,
+  userId: true,
+  projectId: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true,
+
+  user: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      avatar: true,
+    },
+  },
+};
+
+export const projectWithMembershipSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  description: true,
+  status: true,
+  organizationId: true,
+  createdAt: true,
+  updatedAt: true,
+
+  memberships: {
+    select: {
+      id: true,
+      userId: true,
+      projectId: true,
+      role: true,
+    },
+
+    where: {
+      // This will be handled differently below
+    },
+  },
+};

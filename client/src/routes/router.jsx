@@ -28,8 +28,11 @@ import InvitationsPage from "@/features/organization/pages/InvitationsPage";
 import InvitationPage from "@/features/organization/pages/InvitationPage";
 import CreateOrganizationPage from "@/features/organization/pages/CreateOrganizationPage";
 
+import ProjectsPage from "@/features/project/pages/ProjectsPage";
+
 import ProfilePage from "@/features/user/pages/ProfilePage";
 import SettingsPage from "@/pages/Settings/SettingsPage";
+import ProjectDetailPage from "@/features/project/pages/ProjectDetailsPage";
 
 export const router = createBrowserRouter([
   {
@@ -173,6 +176,14 @@ export const router = createBrowserRouter([
                     path: "/organization/invitations",
                     element: <InvitationsPage />,
                   },
+                  {
+                    path: "/projects",
+                    element: <ProjectsPage />
+                  },
+                  {
+                    path: "/projects/:projectId",
+                    element: <ProjectDetailPage />
+                  }
                 ],
               },
             ],
