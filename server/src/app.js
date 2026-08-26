@@ -6,7 +6,8 @@ import cookieParser from "cookie-parser";
 
 import env from "./config/env.js";
 
-import routes from "./routes/index.js"
+import routes from "./routes/index.js";
+
 import requestLogger from "./middleware/requestLogger.js";
 import notFound from "./middleware/notFound.middleware.js";
 import errorHandler from "./middleware/error.middleware.js";
@@ -27,19 +28,31 @@ app.use(
 // Compression
 app.use(compression());
 
+// Request logging
 app.use(requestLogger);
 
-// Body Parser
+// Body parsing
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Cookies
 app.use(cookieParser());
 
-app.use("/api/v1",routes)
+// Health check
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    environment: env.NODE_ENV,
+  });
+});
 
+// API routes
+app.use("/api/v1", routes);
+
+// 404
 app.use(notFound);
 
+// Error handler
 app.use(errorHandler);
 
 export default app;

@@ -17,7 +17,7 @@ async function startServer() {
     await redis.ping();
     logger.info("Redis health check passed");
 
-    server = app.listen(env.PORT, () => {
+    server = app.listen(env.PORT, "0.0.0.0", () => {
       logger.info(`Server started on port ${env.PORT}`);
     });
   } catch (error) {
@@ -33,17 +33,23 @@ async function startServer() {
 }
 
 async function shutdown(signal) {
-  if (isShuttingDown) return;
+  if (isShuttingDown) {
+    return;
+  }
 
   isShuttingDown = true;
 
   logger.info(`${signal} received. Shutting down gracefully...`);
 
   try {
+    // Stop accepting new HTTP requests
     if (server?.listening) {
       await new Promise((resolve, reject) => {
         server.close((error) => {
-          if (error) return reject(error);
+          if (error) {
+            return reject(error);
+          }
+
           resolve();
         });
       });
@@ -51,9 +57,11 @@ async function shutdown(signal) {
       logger.info("HTTP server closed");
     }
 
+    // PostgreSQL
     await prisma.$disconnect();
     logger.info("PostgreSQL disconnected");
 
+    // Redis
     if (redis.status !== "end") {
       await redis.quit();
       logger.info("Redis disconnected");
@@ -68,7 +76,7 @@ async function shutdown(signal) {
       "Error during shutdown"
     );
   } finally {
-    process.exit(0);
+    process.exit(signal === "STARTUP_FAILURE" ? 1 : 0);
   }
 }
 
@@ -83,11 +91,23 @@ process.once("SIGTERM", () => {
 });
 
 process.on("unhandledRejection", async (reason) => {
-  logger.fatal({ reason }, "Unhandled Promise Rejection");
-  await shutdown("unhandledRejection");
+  logger.fatal(
+    {
+      reason,
+    },
+    "Unhandled Promise Rejection"
+  );
+
+  await shutdown("UNHANDLED_REJECTION");
 });
 
 process.on("uncaughtException", async (error) => {
-  logger.fatal({ err: error }, "Uncaught Exception");
-  await shutdown("uncaughtException");
+  logger.fatal(
+    {
+      err: error,
+    },
+    "Uncaught Exception"
+  );
+
+  await shutdown("UNCAUGHT_EXCEPTION");
 });
