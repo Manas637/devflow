@@ -21,6 +21,9 @@ import ResetPasswordPage from "@/features/auth/pages/ResetPasswordPage";
 
 import NotFound from "@/pages/NotFound";
 
+import ProfilePage from "@/features/user/pages/ProfilePage";
+import SettingsPage from "@/pages/Settings/SettingsPage";
+
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
@@ -117,6 +120,16 @@ export const router = createBrowserRouter([
               {
                 path: "/dashboard",
                 element: <DashboardPage />,
+              },
+
+              {
+                path: "/profile",
+                element: <ProfilePage />,
+              },
+
+              {
+                path: "/settings",
+                element: <SettingsPage />,
               },
             ],
           },

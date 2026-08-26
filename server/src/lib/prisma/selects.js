@@ -34,3 +34,9 @@ export const userSessionSelect = {
   lastUsedAt: true,
   expiresAt: true,
 };
+
+export const publicUserSelect = {
+  id: true,
+  name: true,
+  avatar: true,
+};
