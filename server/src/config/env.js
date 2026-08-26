@@ -38,7 +38,8 @@ const envSchema = z.object({
   SMTP_HOST: z.string(),
   SMTP_PORT: z.coerce.number().positive(),
   SMTP_USER: z.string(),
-  SMTP_PASSWORD: z.string(), 
+  SMTP_PASSWORD: z.string(),
+  SMTP_SECURE: z.coerce.boolean(),
 
   MAIL_FROM: z.string(),
 });
