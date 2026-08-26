@@ -30,6 +30,26 @@ class EmailQueueService {
       }
     );
   }
+
+  async addOrganizationInvitationEmailJob({
+    email,
+    name,
+    organizationName,
+    role,
+    token,
+  }) {
+    return emailQueue.add(
+      "organization-invitation-email",
+      {
+        type: "organization-invitation",
+        to: email,
+        name,
+        organizationName,
+        role,
+        token,
+      }
+    );
+  }
 }
 
 export default new EmailQueueService();

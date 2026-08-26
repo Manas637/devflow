@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import NoOrganizationState from "./components/NoOrganizationState";
+import useCurrentOrganization from "@/features/organization/hooks/useCurrentOrganization";
 
 const stats = [
   {
@@ -32,6 +34,18 @@ const stats = [
 ];
 
 export default function DashboardPage() {
+   const {
+    organization,
+    isLoading,
+  } = useCurrentOrganization();
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!organization) {
+    return <NoOrganizationState />;
+  }
   return (
     <div className="space-y-8">
       {/* Header */}

@@ -7,6 +7,7 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import PublicRoute from "@/routes/PublicRoute";
+import OrganizationRoute from "@/routes/OrganizationRoute";
 
 import LandingPage from "@/pages/Landing/LandingPage";
 import DashboardPage from "@/pages/Dashboard/DashboardPage";
@@ -20,6 +21,12 @@ import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/features/auth/pages/ResetPasswordPage";
 
 import NotFound from "@/pages/NotFound";
+
+import OrganizationPage from "@/features/organization/pages/OrganizationPage";
+import MembersPage from "@/features/organization/pages/MembersPage";
+import InvitationsPage from "@/features/organization/pages/InvitationsPage";
+import InvitationPage from "@/features/organization/pages/InvitationPage";
+import CreateOrganizationPage from "@/features/organization/pages/CreateOrganizationPage";
 
 import ProfilePage from "@/features/user/pages/ProfilePage";
 import SettingsPage from "@/pages/Settings/SettingsPage";
@@ -41,6 +48,10 @@ export const router = createBrowserRouter([
             index: true,
             element: <LandingPage />,
           },
+          {
+            path: "/invitations/accept",
+            element: <InvitationPage />
+          }
         ],
       },
 
@@ -130,6 +141,39 @@ export const router = createBrowserRouter([
               {
                 path: "/settings",
                 element: <SettingsPage />,
+              },
+              {
+                path: "/organization/create",
+                element: <CreateOrganizationPage />
+              },
+
+              /*
+               * ----------------------------------------------------------------
+               * Organization routes
+               * ----------------------------------------------------------------
+               *
+               * OrganizationRoute makes sure that the user actually has
+               * an organization before rendering these pages.
+               */
+
+              {
+                element: <OrganizationRoute />,
+                children: [
+                  {
+                    path: "/organization",
+                    element: <OrganizationPage />,
+                  },
+
+                  {
+                    path: "/organization/members",
+                    element: <MembersPage />,
+                  },
+
+                  {
+                    path: "/organization/invitations",
+                    element: <InvitationsPage />,
+                  },
+                ],
               },
             ],
           },

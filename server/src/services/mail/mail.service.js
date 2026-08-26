@@ -5,6 +5,7 @@ import { render } from "@react-email/render";
 
 import VerifyEmail from "../../email/VerifyEmail.jsx";
 import ResetPassword from "../../email/ResetPassword.jsx";
+import OrganizationInvitation from "../../email/OrganizationInvitation.jsx";
 
 class MailService {
   async send({
@@ -64,6 +65,29 @@ class MailService {
       react: ResetPassword({
         name: user.name,
         resetUrl,
+      }),
+    });
+  }
+
+  async sendOrganizationInvitationEmail({
+    email,
+    name,
+    organizationName,
+    role,
+    token,
+  }) {
+    const invitationUrl =
+      `${env.CLIENT_URL}/invitations/accept?token=${encodeURIComponent(token)}`;
+
+    return this.send({
+      to: email,
+      subject:
+        `You're invited to join ${organizationName} on DevFlow`,
+      react: OrganizationInvitation({
+        name,
+        organizationName,
+        role,
+        invitationUrl,
       }),
     });
   }

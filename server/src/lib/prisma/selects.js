@@ -40,3 +40,51 @@ export const publicUserSelect = {
   name: true,
   avatar: true,
 };
+
+export const organizationSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  createdAt: true,
+  updatedAt: true,
+};
+
+export const membershipSelect = {
+  id: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true,
+  userId: true,
+  organizationId: true,
+};
+
+export const organizationWithMembershipSelect = {
+  ...organizationSelect,
+
+  memberships: {
+    select: {
+      id: true,
+      role: true,
+      userId: true,
+      createdAt: true,
+    },
+  },
+};
+
+export const membershipWithUserSelect = {
+  id: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true,
+  userId: true,
+  organizationId: true,
+
+  user: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      avatar: true,
+    },
+  },
+};
